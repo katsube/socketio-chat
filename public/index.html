@@ -3,13 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>SocketIOチャット</title>
-  <style>
-    #inputmyname{display:none}
-    #chat{display:none}
-    #msglist{list-style-type:none; padding-left:1px;}
-    .msg-me{color:blue}
-    .name {font-weight:bold}
-  </style>
+  <link rel="stylesheet" href="style.css" type="text/css" media="all">
 </head>
 <body>
 
@@ -24,7 +18,7 @@
 <!-- STEP2. 名前を入力 -->
 <section id="inputmyname">
   <p>あなたの名前を入力してください</p>
-  <form id="frm-myname">
+  <form id="frm-myname" autocomplete="off">
     <input type="text" id="txt-myname">
     <button>入室</button>
   </form>
@@ -34,13 +28,23 @@
 <!-- STEP3. チャット開始 -->
 <section id="chat">
   <!-- 発言フォーム -->
-  <form id="frm-post">
-    <span id="myname"></span>&nbsp;<input type="text" id="msg">
-    <button>送信</button>
+  <form id="frm-post" autocomplete="off">
+    <span id="myname"></span><br>
+    <input type="text" id="msg">&nbsp;&nbsp;<button>送信</button>
   </form>
 
-  <!-- 発言ログ -->
-  <ul id="msglist"></ul>
+  <section id="chat-main">
+    <!-- 発言ログ -->
+    <ul id="msglist"></ul>
+
+    <!-- メンバー一覧 -->
+    <ul id="memberlist"></ul>
+  </section>
+
+  <!-- ログアウト -->
+  <form id="frm-quit">
+    <button>退室する</button>
+  </form>
 </section>
 <!-- /チャット本体 -->
 

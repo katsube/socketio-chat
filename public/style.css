@@ -1,0 +1,78 @@
+@charset "utf8";
+
+/*-------------------------
+ * STEP2
+ *-------------------------*/
+#inputmyname{
+  display:none;
+}
+#txt-myname{
+  width: 300px;
+  font-size: 14pt;
+  padding: 4px;
+}
+#frm-myname button{
+  width: 80px;
+  height: 30px;
+  font-size: 12pt;
+}
+
+/*-------------------------
+ * STEP3
+ *-------------------------*/
+#chat{
+  display:none;
+}
+#chat-main{
+  display:flex;
+}
+#msglist{
+  width: 500px;
+  height: 300px;
+  overflow-y: scroll;
+  list-style-type:none;
+  border: 1px solid gray;
+  padding: 5px;
+}
+#myname{
+  font-weight: bold;
+}
+#msg{
+  width: 500px;
+  font-size: 14pt;
+  padding: 4px;
+}
+#frm-post button{
+  width: 80px;
+  height: 30px;
+  font-size: 12pt;
+}
+
+.msg-me{
+  color:blue;
+}
+.msg-master{
+  color: red;
+}
+.name{
+  font-weight:bold;
+}
+
+#memberlist{
+  width: 150px;
+  height: 300px;
+  overflow-y: scroll;
+  list-style-image: url(circle-solid.svg);
+  border: 1px solid gray;
+  padding: 5px 5px 5px 30px;  /* 上右下左 */
+  margin-left: 10px;
+}
+.member-me{
+  font-weight: bold;
+}
+
+#frm-quit button{
+  width: 100px;
+  height: 30px;
+  font-size: 12pt;
+}
