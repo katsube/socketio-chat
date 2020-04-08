@@ -18,6 +18,9 @@ const io   = require("socket.io")(http);
 // HTMLやJSなどを配置するディレクトリ
 const DOCUMENT_ROOT = __dirname + "/public";
 
+// トークンを作成する際の秘密鍵
+const SECRET_TOKEN = "abcdefghijklmn12345";
+
 //-----------------------------------------------
 // グローバル変数
 //-----------------------------------------------
@@ -54,7 +57,7 @@ app.get("/:file", (req, res)=>{
  */
 io.on("connection", (socket)=>{
   //---------------------------------
-  // ログイン
+  // 接続
   //---------------------------------
   (()=>{
     // トークンを作成
@@ -72,7 +75,7 @@ io.on("connection", (socket)=>{
   // 入室する
   //---------------------------------
   socket.on("join", (data)=>{
-    if( (socket.id in MEMBER) &&  (data.token === MEMBER[socket.id].token) ){
+    if( authToken(socket.id, data.token) ){
       // 入室OK + 現在の入室者一覧を通知
       const memberlist = getMemberList();
       io.to(socket.id).emit("join-result", {status: true, list: memberlist});
@@ -87,7 +90,6 @@ io.on("connection", (socket)=>{
     else{
       // 本人にNG通知
       io.to(socket.id).emit("join-result", {status: false});
-      console.log("join.NG", data.token, MEMBER);
     }
   });
 
@@ -95,7 +97,7 @@ io.on("connection", (socket)=>{
   // 発言を全員に送信
   //---------------------------------
   socket.on("post", (data)=>{
-    if( (socket.id in MEMBER) &&  (data.token === MEMBER[socket.id].token) ){
+    if( authToken(socket.id, data.token) ){
       // 本人に通知
       io.to(socket.id).emit("member-post", data);
 
@@ -108,7 +110,7 @@ io.on("connection", (socket)=>{
   // 退室する
   //---------------------------------
   socket.on("quit", (data)=>{
-    if( (socket.id in MEMBER) &&  (data.token === MEMBER[socket.id].token) ){
+    if( authToken(socket.id, data.token) ){
       // 本人に通知
       io.to(socket.id).emit("quit-result", {status: true});
 
@@ -141,8 +143,21 @@ http.listen(3000, ()=>{
  * @return {string}
  */
 function makeToken(id){
-  const str = "aqwsedrftgyhujiko" + id;
+  const str = SECRET_TOKEN + id;
   return( crypto.createHash("sha1").update(str).digest('hex') );
+}
+
+/**
+ * 本人からの通信か確認する
+ *
+ * @param {string} socketid
+ * @param {string} token
+ * @return {boolean}
+ */
+function authToken(socketid, token){
+  return(
+    (socketid in MEMBER) && (token === MEMBER[socketid].token)
+  );
 }
 
 /**

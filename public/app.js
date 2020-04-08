@@ -1,49 +1,17 @@
-//自分自身の情報を入れる
+//自分自身の情報を入れる箱
 const IAM = {
-  token: null,  // トークン
-  name: null    // 名前
+  token: null,    // トークン
+  name: null,     // 名前
+  is_join: false  // 入室中？
 };
 
-// メンバー一覧を入れる
+// メンバー一覧を入れる箱
 const MEMBER = {
   0: "マスター"
 };
 
 // Socket.ioのクライアント用オブジェクトをセット
 const socket = io();
-
-/**
- * 初期化
- *
- * @return {void}
- */
-function init(){
-  // NowLoadingから開始
-  $("#nowconnecting").style.display = "block";  // NowLoadingを表示
-  $("#inputmyname").style.display = "none";     // 名前入力を非表示
-  $("#chat").style.display = "none";            // チャットを非表示
-
-  // 自分の情報を初期化
-  IAM.token = null;
-  IAM.name  = null;
-
-  // メンバー一覧を初期化
-  for( let key in MEMBER ){
-    if( key !== "0" ){
-      delete MEMBER[key];
-    }
-  }
-
-  // チャット内容を全て消す
-  $("#txt-myname").value = "";     // 名前入力欄 STEP2
-  $("#myname").innerHTML = "";     // 名前表示欄 STEP3
-  $("#msg").value = "";            // 発言入力欄 STEP3
-  $("#msglist").innerHTML = "";    // 発言リスト STEP3
-  $("#memberlist").innerHTML = ""; // メンバーリスト STEP3
-
-  // Socket.ioサーバへ再接続
-  socket.close().open();
-}
 
 
 //-------------------------------------
@@ -97,6 +65,9 @@ socket.on("join-result", (data)=>{
   // 正常に入室できた
   //------------------------
   if( data.status ){
+    // 入室フラグを立てる
+    IAM.is_join = true;
+
     // すでにログイン中のメンバー一覧を反映
     for(let i=0; i<data.list.length; i++){
       const cur = data.list[i];
@@ -165,7 +136,7 @@ $("#frm-quit").addEventListener("submit", (e)=>{
  */
 socket.on("quit-result", (data)=>{
   if( data.status ){
-    init();
+    gotoSTEP1();
   }
   else{
     alert("退室できませんでした");
@@ -179,27 +150,67 @@ socket.on("quit-result", (data)=>{
  * [イベント] 誰かが入室した
  */
 socket.on("member-join", (data)=>{
-  addMessageFromMaster(`${data.name}さんが入室しました`);
-  addMemberList(data.token, data.name);
+  if( IAM.is_join ){
+    addMessageFromMaster(`${data.name}さんが入室しました`);
+    addMemberList(data.token, data.name);
+  }
 });
 
 /**
  * [イベント] 誰かが退室した
  */
 socket.on("member-quit", (data)=>{
-  const name = MEMBER[data.token];
-  addMessageFromMaster(`${name}さんが退室しました`);
-  removeMemberList(data.token);
+  if( IAM.is_join ){
+    const name = MEMBER[data.token];
+    addMessageFromMaster(`${name}さんが退室しました`);
+    removeMemberList(data.token);
+  }
 });
 
 /**
  * [イベント] 誰かが発言した
  */
 socket.on("member-post", (msg)=>{
-  const is_me = (msg.token === IAM.token);
-  addMessage(msg, is_me);
+  if( IAM.is_join ){
+    const is_me = (msg.token === IAM.token);
+    addMessage(msg, is_me);
+  }
 });
 
+
+/**
+ * 最初の状態にもどす
+ *
+ * @return {void}
+ */
+function gotoSTEP1(){
+  // NowLoadingから開始
+  $("#nowconnecting").style.display = "block";  // NowLoadingを表示
+  $("#inputmyname").style.display = "none";     // 名前入力を非表示
+  $("#chat").style.display = "none";            // チャットを非表示
+
+  // 自分の情報を初期化
+  IAM.token = null;
+  IAM.name  = null;
+  IAM.is_join = false;
+
+  // メンバー一覧を初期化
+  for( let key in MEMBER ){
+    if( key !== "0" ){
+      delete MEMBER[key];
+    }
+  }
+
+  // チャット内容を全て消す
+  $("#txt-myname").value = "";     // 名前入力欄 STEP2
+  $("#myname").innerHTML = "";     // 名前表示欄 STEP3
+  $("#msg").value = "";            // 発言入力欄 STEP3
+  $("#msglist").innerHTML = "";    // 発言リスト STEP3
+  $("#memberlist").innerHTML = ""; // メンバーリスト STEP3
+
+  // Socket.ioサーバへ再接続
+  socket.close().open();
+}
 
 /**
  * 発言を表示する
