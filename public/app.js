@@ -25,9 +25,11 @@ socket.on("token", (data)=>{
   IAM.token = data.token;
 
   // 表示を切り替える
-  $("#nowconnecting").style.display = "none";   // 「接続中」を非表示
-  $("#inputmyname").style.display = "block";    // 名前入力を表示
-  $("#txt-myname").focus();
+  if( ! IAM.is_join ){
+    $("#nowconnecting").style.display = "none";   // 「接続中」を非表示
+    $("#inputmyname").style.display = "block";    // 名前入力を表示
+    $("#txt-myname").focus();
+  }
 });
 
 //-------------------------------------
