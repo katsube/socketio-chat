@@ -3,6 +3,7 @@
 以下のブログのサンプルコードです。
 1. [はじめてのSocket.io #1 「リアルタイムなチャットを作る」](https://blog.katsubemakito.net/nodejs/socketio/realtime-chat1)
 1. [はじめてのSocket.io #2 「自分がemitした通信内容か判定する」](https://blog.katsubemakito.net/nodejs/socketio/realtime-chat2)
+1. [はじめてのSocket.io #3 「ユーザー間でのなりすましを防ぐ」](https://blog.katsubemakito.net/nodejs/socketio/realtime-chat3)
 
 
 ## 実行方法

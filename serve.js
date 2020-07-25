@@ -7,7 +7,7 @@
 //-----------------------------------------------
 // モジュール
 //-----------------------------------------------
-const crypto = require('crypto');
+const crypto = require("crypto");
 const app  = require("express")();
 const http = require("http").createServer(app);
 const io   = require("socket.io")(http);
@@ -44,6 +44,10 @@ let MEMBER_COUNT = 1;
 app.get("/", (req, res)=>{
   res.sendFile(DOCUMENT_ROOT + "/index.html");
 });
+/**
+ * その他のファイルへのアクセス
+ * (app.js, style.cssなど)
+ */
 app.get("/:file", (req, res)=>{
   res.sendFile(DOCUMENT_ROOT + "/" + req.params.file);
 });
@@ -57,13 +61,13 @@ app.get("/:file", (req, res)=>{
  */
 io.on("connection", (socket)=>{
   //---------------------------------
-  // 接続
+  // トークンを返却
   //---------------------------------
   (()=>{
     // トークンを作成
     const token = makeToken(socket.id);
 
-    // ユーザーリストにトークンを保存
+    // ユーザーリストに追加
     MEMBER[socket.id] = {token: token, name:null, count:MEMBER_COUNT};
     MEMBER_COUNT++;
 
@@ -71,10 +75,13 @@ io.on("connection", (socket)=>{
     io.to(socket.id).emit("token", {token:token});
   })();
 
-  //---------------------------------
-  // 入室する
-  //---------------------------------
+  /**
+   * [イベント] 入室する
+   */
   socket.on("join", (data)=>{
+    //--------------------------
+    // トークンが正しければ
+    //--------------------------
     if( authToken(socket.id, data.token) ){
       // 入室OK + 現在の入室者一覧を通知
       const memberlist = getMemberList();
@@ -87,16 +94,22 @@ io.on("connection", (socket)=>{
       io.to(socket.id).emit("member-join", data);
       socket.broadcast.emit("member-join", {name:data.name, token:MEMBER[socket.id].count});
     }
+    //--------------------------
+    // トークンが誤っていた場合
+    //--------------------------
     else{
       // 本人にNG通知
       io.to(socket.id).emit("join-result", {status: false});
     }
   });
 
-  //---------------------------------
-  // 発言を全員に送信
-  //---------------------------------
+  /**
+   * [イベント] 発言を全員に中継
+   */
   socket.on("post", (data)=>{
+    //--------------------------
+    // トークンが正しければ
+    //--------------------------
     if( authToken(socket.id, data.token) ){
       // 本人に通知
       io.to(socket.id).emit("member-post", data);
@@ -104,12 +117,17 @@ io.on("connection", (socket)=>{
       // 本人以外に通知
       socket.broadcast.emit("member-post", {text:data.text, token:MEMBER[socket.id].count});
     }
+
+    // トークンが誤っていた場合は無視する
   });
 
-  //---------------------------------
-  // 退室する
-  //---------------------------------
+  /**
+   * [イベント] 退室する
+   */
   socket.on("quit", (data)=>{
+    //--------------------------
+    // トークンが正しければ
+    //--------------------------
     if( authToken(socket.id, data.token) ){
       // 本人に通知
       io.to(socket.id).emit("quit-result", {status: true});
@@ -120,8 +138,11 @@ io.on("connection", (socket)=>{
       // 削除
       delete MEMBER[socket.id];
     }
+    //--------------------------
+    // トークンが誤っていた場合
+    //--------------------------
     else{
-      // 本人に通知
+      // 本人にNG通知
       io.to(socket.id).emit("quit-result", {status: false});
     }
   });
