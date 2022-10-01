@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/katsube/socketio-chat#readme",
   "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "express": "^4.18.1",
+    "socket.io": "^4.5.2"
   }
 }
